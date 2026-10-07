@@ -1,0 +1,28 @@
+{
+  "title": "Separating Parsing Expression Grammars using Cell-Probe Lower Bounds: Lean Artifact",
+  "description": "Lean 4 artifact for the paper Separating Parsing Expression Grammars using Cell-Probe Lower Bounds. It contains the canonical proof entry points, an optional internal lower-bound route, and pinned Lean and mathlib dependencies.",
+  "creators": [
+    {
+      "name": "Kim, Jungyeom",
+      "affiliation": "Nexon Korea",
+      "orcid": "0009-0002-5915-2562"
+    },
+    {
+      "name": "Park, Jihyeok",
+      "affiliation": "Korea University",
+      "orcid": "0000-0001-8387-1984"
+    }
+  ],
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "language": "eng",
+  "keywords": [
+    "parsing expression grammars",
+    "formal verification",
+    "Lean 4",
+    "cell-probe lower bounds",
+    "formal languages"
+  ]
+}

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this artifact, please cite it using the metadata below."
+title: "Separating Parsing Expression Grammars using Cell-Probe Lower Bounds: Lean Artifact"
+type: software
+version: 0.1.0
+date-released: 2026-08-26
+authors:
+  - family-names: Kim
+    given-names: Jungyeom
+    affiliation: Nexon Korea
+    orcid: "https://orcid.org/0009-0002-5915-2562"
+  - family-names: Park
+    given-names: Jihyeok
+    affiliation: Korea University
+    orcid: "https://orcid.org/0000-0001-8387-1984"
+repository-code: "https://github.com/kimjg1119/peg-separation-artifact"
+license: Apache-2.0
+keywords:
+  - parsing expression grammars
+  - formal verification
+  - Lean 4
+  - cell-probe lower bounds
+  - formal languages

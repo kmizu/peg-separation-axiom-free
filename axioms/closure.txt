@@ -1,0 +1,132 @@
+# `#print axioms` output for PegSeparation/Closure/Main.lean
+#
+# generated : 2026-08-11
+# command   : lake env lean PegSeparation/Closure/Main.lean
+# toolchain : leanprover/lean4:v4.31.0
+# mathlib   : fabf563a7c95a166b8d7b6efca11c8b4dc9d911f
+#
+# propext, Classical.choice and Quot.sound are Lean/mathlib's standard
+# foundational axioms. Any other name listed below is an assumption this
+# project adds on top of them.
+
+PegSeparation.Closure.concatenationNonClosure :
+  PegSeparation.RecognizedByTotalPEG PegSeparation.Closure.Pref ∧
+    PegSeparation.Closure.RegularTail.IsRegular ∧
+      ¬PegSeparation.RecognizedByTotalPEG (PegSeparation.Closure.Pref * PegSeparation.Closure.RegularTail)
+PegSeparation.Closure.kleeneStarNonClosure :
+  PegSeparation.RecognizedByTotalPEG PegSeparation.Closure.StarWitness ∧
+    ¬PegSeparation.RecognizedByTotalPEG (KStar.kstar PegSeparation.Closure.StarWitness)
+PegSeparation.Closure.kleenePlusNonClosure :
+  PegSeparation.RecognizedByTotalPEG PegSeparation.Closure.StarWitness ∧
+    ¬PegSeparation.RecognizedByTotalPEG (PegSeparation.Closure.kleenePlus PegSeparation.Closure.StarWitness)
+PegSeparation.Closure.reversalNonClosure :
+  PegSeparation.RecognizedByTotalPEG PegSeparation.Witness.LanguageCFG.C ∧
+    ¬PegSeparation.RecognizedByTotalPEG (Language.reverse PegSeparation.Witness.LanguageCFG.C)
+PegSeparation.Closure.linearOrientationSeparation :
+  (Language.IsLinearContextFree PegSeparation.Witness.LanguageCFG.C ∧
+      PegSeparation.RecognizedByTotalPEG PegSeparation.Witness.LanguageCFG.C ∧
+        ¬PegSeparation.RecognizedBySCA PegSeparation.Witness.LanguageCFG.C) ∧
+    (Language.reverse PegSeparation.Witness.LanguageCFG.C).IsLinearContextFree ∧
+      PegSeparation.RecognizedBySCA (Language.reverse PegSeparation.Witness.LanguageCFG.C) ∧
+        ¬PegSeparation.RecognizedByTotalPEG (Language.reverse PegSeparation.Witness.LanguageCFG.C)
+PegSeparation.Closure.HomomorphismInternal.homomorphismNonClosureInternal :
+  ∃ language hom,
+    PegSeparation.RecognizedByTotalPEG language ∧
+      ¬PegSeparation.RecognizedByTotalPEG (PegSeparation.Closure.HomomorphismInternal.wordHomImage hom language)
+PegSeparation.Closure.HomomorphismInternal.substitutionNonClosureInternal :
+  ∃ language substitution,
+    PegSeparation.RecognizedByTotalPEG language ∧
+      (∀ (symbol : Option PegSeparation.Witness.LanguageCFG.Terminal),
+          PegSeparation.RecognizedByTotalPEG (substitution symbol)) ∧
+        ¬PegSeparation.RecognizedByTotalPEG
+            (PegSeparation.Closure.HomomorphismInternal.substitutionImage substitution language)
+PegSeparation.Closure.GreibachHardest.greibachHardest_isContextFree_not_totalPEG :
+  PegSeparation.Closure.GreibachHardest.fixedWitness.language.IsContextFree ∧
+    ¬PegSeparation.Closure.GreibachHardest.fixedWitness.IsTotalPEG
+'PegSeparation.Closure.witness_factorization' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.nonterminal_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.alternative_card' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.cfg_isLinear' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.cfg_language_eq_C' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.C_isLinearContextFree' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Witness.LanguageCFG.LinearGrammar.L_isLinearContextFree' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Closure.cFirst_compiledDegree' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.cFirst_isSCA_degree_six_radius_two' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.pref_isPEG' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.regularTail_isRegular' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.reversedRecord_isRegular' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.shape_isRegular' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_union' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_inter' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_compl' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_of_isRegular' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_mul_of_isRegular_left' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Closure.starWitness_isPEG' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.starWitness_kstar_inter_shape' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.epsilonLanguage_isPEG' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.HomomorphismInternal.recognizedByTotalPEG_markedProduct' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Closure.HomomorphismInternal.markedConcatenationWitness_isPEG' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Closure.HomomorphismInternal.markedConcatenationWitness_erases' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'PegSeparation.Closure.C_isPEG' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.C_isLIN' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.reverse_C_isLIN' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.reverse_C_isSCA' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.Closure.recognizedByTotalPEG_inverseImage' depends on axioms: [PegSeparation.External.BirmanUllman1973.recognizedByTotalPEG_inverseImage]
+'PegSeparation.Closure.concatenationNonClosure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.concatenationNonClosureBothPEG' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.kleeneStarNonClosure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.kleenePlusNonClosure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.reversalNonClosure' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.linearOrientationSeparation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.HomomorphismInternal.homomorphismNonClosureInternal' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.HomomorphismInternal.substitutionNonClosureInternal' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]
+'PegSeparation.Closure.GreibachHardest.greibachHardest_isContextFree_not_totalPEG' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound,
+ PegSeparation.External.BirmanUllman1973.recognizedByTotalPEG_inverseImage,
+ PegSeparation.External.Greibach1973.hardestContextFreeLanguage,
+ PegSeparation.External.Ko2026.multiphaseIPLowerBound]

@@ -1,0 +1,15 @@
+# `#print axioms` output for PegSeparation/CFLNotPEG/InternalLowerBoundMain.lean
+#
+# generated : 2026-08-11
+# command   : lake env lean PegSeparation/CFLNotPEG/InternalLowerBoundMain.lean
+# toolchain : leanprover/lean4:v4.31.0
+# mathlib   : fabf563a7c95a166b8d7b6efca11c8b4dc9d911f
+#
+# propext, Classical.choice and Quot.sound are Lean/mathlib's standard
+# foundational axioms. Any other name listed below is an assumption this
+# project adds on top of them.
+
+PegSeparation.CFLNotPEG.internalMultiphaseIPLowerBound : PegSeparation.Ko2026MultiphaseIPLowerBoundStatement
+'PegSeparation.CFLNotPEG.internalLarsenYuBetaOneExactCost' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.CFLNotPEG.internalLowerBoundAssumptions' depends on axioms: [propext, Classical.choice, Quot.sound]
+'PegSeparation.CFLNotPEG.internalMultiphaseIPLowerBound' depends on axioms: [propext, Classical.choice, Quot.sound]
