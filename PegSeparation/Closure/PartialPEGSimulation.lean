@@ -4,7 +4,7 @@ import PegSeparation.Closure.PartialPEGBasic
 # The translated grammar simulates the `PartialPEG` grammar
 
 `sim`: whenever `g` derives an outcome for a subterm `e` of its rules (or a nonterminal) on an
-input `v.map toChar`, the translation `tr e` evaluates on `v` to the corresponding result
+input `v.map toChar`, the translation `toTotal e` evaluates on `v` to the corresponding result
 (`Rel`), and the consuming translation `trP e` evaluates on `v` to failure unless `e` succeeded
 by consuming input, in which case it gives the same rest (`RelP`). Proved by induction on the
 derivation.
@@ -21,7 +21,7 @@ section Sim
 variable {Terminal : Type} [Fintype Terminal] [DecidableEq Terminal]
   {toChar : Terminal → Char} {g : Grammar}
 
-/-- Correspondence of outcomes for `tr`. -/
+/-- Correspondence of outcomes for `toTotal`. -/
 def Rel (toChar : Terminal → Char) : Outcome → ParseResult Terminal → Prop
   | .fail, r => r = .failure
   | .ok _ rest, r => ∃ u, rest = u.map toChar ∧ r = .success u
@@ -33,17 +33,17 @@ def RelP (toChar : Terminal → Char) : Outcome → List Terminal → ParseResul
       (rest = v.map toChar ∧ r = .failure) ∨ ∃ u, rest = u.map toChar ∧ u ≠ v ∧ r = .success u
 
 /-- The expressions the simulation is about. -/
-def Good (g : Grammar) (e : PExp) : Prop := e ∈ allSubs g ∨ ∃ i, e = .nt i
+def SubGood (g : Grammar) (e : PExp) : Prop := e ∈ allSubs g ∨ ∃ i, e = .nt i
 
 /-- The simulation statement. -/
 def Sim (toChar : Terminal → Char) (g : Grammar) (e : PExp) (x : List Char) (o : Outcome) :
     Prop :=
   ∀ v : List Terminal, x = v.map toChar →
-    (∃ r, (newGrammar toChar g).Evaluates (tr toChar g e) v r ∧ Rel toChar o r) ∧
+    (∃ r, (newGrammar toChar g).Evaluates (toTotal toChar g e) v r ∧ Rel toChar o r) ∧
     (∃ r, (newGrammar toChar g).Evaluates (trP toChar g e) v r ∧ RelP toChar o v r)
 
-theorem good_sub {x y : PExp} (hx : Good g x) (hnt : ∀ i, x ≠ .nt i) (hy : y ∈ subterms x) :
-    Good g y := by
+theorem good_sub {x y : PExp} (hx : SubGood g x) (hnt : ∀ i, x ≠ .nt i) (hy : y ∈ subterms x) :
+    SubGood g y := by
   rcases hx with hx | ⟨i, rfl⟩
   · exact Or.inl (mem_allSubs_of_sub hx hy)
   · exact absurd rfl (hnt i)
@@ -61,14 +61,14 @@ theorem map_inj (hinj : Function.Injective toChar) {u v : List Terminal}
 /-- `Z e`, the "succeeds without consuming" test used by `trP` of a sequence. -/
 theorem eval_Z {a : PExp} {v : List Terminal}
     (P : (newGrammar toChar g).Evaluates (trP toChar g a) v .failure)
-    (E : (newGrammar toChar g).Evaluates (tr toChar g a) v (.success v)) :
+    (E : (newGrammar toChar g).Evaluates (toTotal toChar g a) v (.success v)) :
     (newGrammar toChar g).Evaluates
-      (.sequence (.notPredicate (trP toChar g a)) (.andPredicate (tr toChar g a))) v
+      (.sequence (.notPredicate (trP toChar g a)) (.andPredicate (toTotal toChar g a))) v
       (.success v) :=
   .sequenceSuccess (.notSuccess P) (.andSuccess E)
 
 theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : Outcome}
-    (D : Derives g e x o) : Good g e → Sim toChar g e x o := by
+    (D : Derives g e x o) : SubGood g e → Sim toChar g e x o := by
   induction D with
   | eps input =>
       intro _ v hx
@@ -91,14 +91,14 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
       have hp : pre toChar c = some t := (pre_eq_some hinj).mpr (htd.trans h.symm)
       have E := eval_terminal_cons (G := newGrammar toChar g) t t u
       simp only [if_true] at E
-      simp only [tr, trP, hp]
+      simp only [toTotal, trP, hp]
       exact ⟨⟨_, E, u, hu.symm, rfl⟩,
         ⟨_, E, Or.inr ⟨u, hu.symm, (List.cons_ne_self t u).symm, rfl⟩⟩⟩
   | chrFail c d rest h =>
       intro _ v hx
       obtain ⟨t, u, rfl, htd, hu⟩ := List.map_eq_cons_iff.mp hx.symm
       have hcd : c ≠ d := fun e => by rw [← beqChar_iff] at e; rw [e] at h; simp at h
-      simp only [tr, trP]
+      simp only [toTotal, trP]
       cases hp : pre toChar c with
       | none => exact ⟨⟨_, .failure _, rfl⟩, ⟨_, .failure _, rfl⟩⟩
       | some t' =>
@@ -110,7 +110,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
   | chrEmpty c =>
       intro _ v hx
       obtain rfl := List.map_eq_nil_iff.mp hx.symm
-      simp only [tr, trP]
+      simp only [toTotal, trP]
       cases pre toChar c with
       | none => exact ⟨⟨_, .failure _, rfl⟩, ⟨_, .failure _, rfl⟩⟩
       | some t => exact ⟨⟨_, eval_terminal_nil t, rfl⟩, ⟨_, eval_terminal_nil t, rfl⟩⟩
@@ -166,7 +166,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
       obtain ⟨hi, he⟩ := ruleAt_eq_some hr
       obtain ⟨⟨r, E, R⟩, ⟨p, P, RP⟩⟩ :=
         ih (Or.inl (he ▸ rule_mem_allSubs hi)) v hx
-      simp only [tr, trP, hi, if_true]
+      simp only [toTotal, trP, hi, if_true]
       refine ⟨⟨r, ntE_eval toChar g (lt_ntCount_of_lt g hi) ?_, R⟩,
         ⟨p, ntE_eval toChar g (add_lt_ntCount_of_lt g hi) ?_, RP⟩⟩
       · rw [newRule_lt toChar g hi, he]; exact E
@@ -176,7 +176,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
       obtain ⟨hi, he⟩ := ruleAt_eq_some hr
       obtain ⟨⟨r, E, R⟩, ⟨p, P, RP⟩⟩ :=
         ih (Or.inl (he ▸ rule_mem_allSubs hi)) v hx
-      simp only [tr, trP, hi, if_true]
+      simp only [toTotal, trP, hi, if_true]
       refine ⟨⟨r, ntE_eval toChar g (lt_ntCount_of_lt g hi) ?_, R⟩,
         ⟨p, ntE_eval toChar g (add_lt_ntCount_of_lt g hi) ?_, RP⟩⟩
       · rw [newRule_lt toChar g hi, he]; exact E
@@ -184,7 +184,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
   | ntMissing i input hr =>
       intro _ v _
       have hi := ruleAt_eq_none hr
-      simp only [tr, trP, hi, if_false]
+      simp only [toTotal, trP, hi, if_false]
       exact ⟨⟨_, .failure _, rfl⟩, ⟨_, .failure _, rfl⟩⟩
   | seqOk e₁ e₂ input rest₁ rest₂ t₁ t₂ h₁ h₂ ih₁ ih₂ =>
       intro hg v hx
@@ -202,7 +202,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
       · obtain rfl := map_inj hinj (hu₁'.symm.trans hu₁)
         refine ⟨_, .choiceLeft (.sequenceSuccess P₁ E₂), Or.inr ⟨u₂, hu₂, ?_, rfl⟩⟩
         rintro rfl
-        have := eq_of_suffix_squeeze (derives_suffix h₂ rfl) (derives_suffix h₁ rfl)
+        have := eq_of_suffix_squeeze (derives_rest_suffix h₂ rfl) (derives_rest_suffix h₁ rfl)
           (hu₂.trans hx.symm)
         exact hne (map_inj hinj (hu₁.symm.trans (this.trans hx)))
   | seqFail₁ e₁ e₂ input h₁ ih₁ =>
@@ -287,7 +287,7 @@ theorem sim (hinj : Function.Injective toChar) {e : PExp} {x : List Char} {o : O
         · rw [newRule_starIdx toChar g hmem]
           exact .choiceLeft (.sequenceSuccess P₁ E₂)
         · rintro rfl
-          exact hrest (eq_of_suffix_squeeze (derives_suffix h₂ rfl) (derives_suffix h₁ rfl)
+          exact hrest (eq_of_suffix_squeeze (derives_rest_suffix h₂ rfl) (derives_rest_suffix h₁ rfl)
             (hu'.trans hx.symm))
   | notOk e input rest t h ih =>
       intro hg v hx

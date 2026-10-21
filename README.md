@@ -20,9 +20,13 @@ theorem PegSeparation.CFLNotPEG.fullyInternalSeparation :
 -- Corollary 5.11: Greibach's hardest context-free language has no total PEG.
 theorem PegSeparation.Closure.GreibachHardest.greibachHardest_not_totalPEG_noAxioms :
     greibachWitness.language.IsContextFree ∧ ¬ greibachWitness.IsTotalPEG
+
+-- New: not even a PEG that may loop on some inputs recognizes it.
+theorem PegSeparation.Closure.GreibachHardest.greibachHardest_not_PEL :
+    ¬ PartialPEG.IsPEL L0
 ```
 
-and `#print axioms` reports only `[propext, Classical.choice, Quot.sound]` for both.
+and `#print axioms` reports only `[propext, Classical.choice, Quot.sound]` for all three.
 
 ## The three axioms of the artifact, and what replaces them
 
@@ -35,9 +39,26 @@ and `#print axioms` reports only `[propext, Classical.choice, Quot.sound]` for b
 `greibachHardest_not_totalPEG_noAxioms` then argues as Corollary 5.11 does: if the hardest language had a total
 PEG, so would it without `ε`, hence so would the witness, which is a nonerasing inverse image of one of them.
 
+## Grammars that may loop
+
+The paper's PEGs are total. `PartialPEG.IsPEL L` (over `Char`, with Ford's PEGs including `*`) only asks that the
+start rule consume exactly the members of `L`; on other inputs the grammar may fail or loop. Ford (POPL 2004, §5)
+states, without proof, that Birman's run-time circularity check turns any PEG into a complete one. This is proved
+here (`PartialPEG.isPEL_allNtTotal`, `PartialPEG.isPEL_iff_isTotalPEL`): every nonterminal is annotated with the
+set of nonterminals already open at the current position, a call to an open one is reported as a loop, and the
+set is reset when input is consumed. The resulting grammar, all of whose rules terminate everywhere, is translated
+into the artifact's total PEGs over a finite alphabet (`PartialPEG.recognizedByTotalPEG_of_partialPEG`), so
+`greibachHardest_not_totalPEG_noAxioms` gives `greibachHardest_not_PEL`.
+
 ## New files
 
-- `GreibachNoAxioms.lean`: the two theorems above.
+- `GreibachNoAxioms.lean`: the three theorems above.
+- `PegSeparation/Closure/PartialPEG{Syntax,Semantics,Determinism,Props}.lean`: Ford-style PEGs over `Char` and their
+  derivation relation, copied from [lean4-peg](https://github.com/kmizu/lean4-peg) (`Shallot.Peg`).
+- `PegSeparation/Closure/PartialPEGTotal*.lean` (8 files): the totalization above, copied from lean4-peg
+  (`Shallot.Peg.Total`).
+- `PegSeparation/Closure/PartialPEG{Translate,Basic,Simulation,Bridge}.lean`: the translation into the artifact's
+  total PEGs (`*` becomes a right-recursive rule over a consuming-only copy of its body).
 - `PegSeparation/Closure/InverseImageNonerasing*.lean` (4 files): the inverse-image closure. The simulating grammar
   has one rule per (subexpression, start offset in the current letter's block, end offset), with ordered choice over
   the finitely many end offsets; it is total when the original grammar is.
@@ -56,15 +77,17 @@ No file of the original artifact was changed.
 ```sh
 lake exe cache get
 lake build PegSeparation.CFLNotPEG.InternalLowerBoundMain PegSeparation.Closure.GreibachProofMain \
-  PegSeparation.Closure.InverseImageNonerasing
-lake env lean GreibachNoAxioms.lean   # prints the axioms of both theorems
+  PegSeparation.Closure.InverseImageNonerasing PegSeparation.Closure.PartialPEGTotalMain \
+  PegSeparation.Closure.PartialPEGBridge
+lake env lean GreibachNoAxioms.lean   # prints the axioms of the three theorems
 ```
 
 The new modules are not part of the default target.
 
 ## Scope
 
-- The result is about total PEGs (`RecognizedByTotalPEG`, grammars that terminate on every input), as in the paper.
+- The paper's results are about total PEGs (`RecognizedByTotalPEG`, grammars that terminate on every input).
+  `greibachHardest_not_PEL` extends the Greibach corollary to grammars that may loop.
 - The inverse-image closure is proved only for nonerasing homomorphisms.
 
 ## License
@@ -80,6 +103,10 @@ Kim–Park の成果物から、公理として置かれていた三つ（Ko の
 数学の結果は Kim–Park のもので、ここで足したのは機械検証だけ。主分離（定理 4.19）と系 5.11（Greibach の最難 CFL は全域な
 PEG を持たない）が、標準の 3 公理だけで Lean で通る。Ko の下界は成果物自身の Larsen–Yu 経由の証明に差し替え、Greibach の定理と
 （消去しない）逆像の閉包は新しく証明した。
+
+さらに、止まらない入力があってもよい PEG（`PartialPEG.IsPEL`）でも Greibach の最難言語は書けないこと
+（`greibachHardest_not_PEL`）を示した。Ford (2004) §5 が証明なしに述べている「Birman の循環検査で任意の PEG を
+完全な PEG に変換できる」を証明し（lean4-peg から複写）、それを成果物の全域 PEG に翻訳して系 5.11 に帰着させた。
 
 ---
 

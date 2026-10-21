@@ -12,7 +12,7 @@ into a `PegGrammar Terminal (ntCount g)` over a finite alphabet `Terminal` embed
 
 Nonterminals of the translated grammar (`L = g.rules.length`, `K = (allSubs g).length`):
 
-- `i < L`: the translation `tr e` of rule `i` of `g` (`e = g.rules[i]`);
+- `i < L`: the translation `toTotal e` of rule `i` of `g` (`e = g.rules[i]`);
 - `L + i`: the *consuming* translation `trP e` of rule `i`, which succeeds exactly when `e` succeeds
   and consumes at least one character (with the same rest);
 - `2L + k`: for the `k`-th subterm of the rules of `g`, when it is a repetition `a*`, the rule
@@ -142,7 +142,7 @@ noncomputable def rangeList (lo hi : Char) : List Terminal :=
   (univList (Terminal := Terminal)).filter fun t => leChar lo (toChar t) && leChar (toChar t) hi
 
 /-- The translation of an expression. -/
-noncomputable def tr : PExp → ParsingExpression Terminal (ntCount g)
+noncomputable def toTotal : PExp → ParsingExpression Terminal (ntCount g)
   | .eps => .empty
   | .any => choiceOf univList
   | .chr c =>
@@ -152,10 +152,10 @@ noncomputable def tr : PExp → ParsingExpression Terminal (ntCount g)
   | .range lo hi => choiceOf (rangeList toChar lo hi)
   | .lit s => litE toChar s
   | .nt i => if i < g.rules.length then ntE g i else .failure
-  | .seq a b => .sequence (tr a) (tr b)
-  | .alt a b => .orderedChoice (tr a) (tr b)
+  | .seq a b => .sequence (toTotal a) (toTotal b)
+  | .alt a b => .orderedChoice (toTotal a) (toTotal b)
   | .star a => ntE g (starIdx g a)
-  | .notP a => .notPredicate (tr a)
+  | .notP a => .notPredicate (toTotal a)
 
 /-- The consuming translation: succeeds iff the expression succeeds consuming input. -/
 noncomputable def trP : PExp → ParsingExpression Terminal (ntCount g)
@@ -169,9 +169,9 @@ noncomputable def trP : PExp → ParsingExpression Terminal (ntCount g)
   | .lit s => if s = [] then .failure else litE toChar s
   | .nt i => if i < g.rules.length then ntE g (g.rules.length + i) else .failure
   | .seq a b =>
-      .orderedChoice (.sequence (trP a) (tr toChar g b))
-        (.sequence (.sequence (.notPredicate (trP a)) (.andPredicate (tr toChar g a))) (trP b))
-  | .alt a b => .orderedChoice (trP a) (.sequence (.notPredicate (tr toChar g a)) (trP b))
+      .orderedChoice (.sequence (trP a) (toTotal toChar g b))
+        (.sequence (.sequence (.notPredicate (trP a)) (.andPredicate (toTotal toChar g a))) (trP b))
+  | .alt a b => .orderedChoice (trP a) (.sequence (.notPredicate (toTotal toChar g a)) (trP b))
   | .star a => .sequence (trP a) (ntE g (starIdx g a))
   | .notP _ => .failure
 
@@ -182,7 +182,7 @@ noncomputable def starRule (j : Nat) : PExp → ParsingExpression Terminal (ntCo
 
 /-- The rules of the translated grammar. -/
 noncomputable def newRule (j : Fin (ntCount g)) : ParsingExpression Terminal (ntCount g) :=
-  if h1 : j.val < g.rules.length then tr toChar g g.rules[j.val]
+  if h1 : j.val < g.rules.length then toTotal toChar g g.rules[j.val]
   else if h2 : j.val < 2 * g.rules.length then
     trP toChar g (g.rules[j.val - g.rules.length]'(by omega))
   else if h3 : j.val - 2 * g.rules.length < (allSubs g).length then

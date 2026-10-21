@@ -30,11 +30,11 @@ variable {Terminal : Type} [Fintype Terminal] [DecidableEq Terminal]
 theorem rule_total (hinj : Function.Injective toChar)
     (htot : ∀ (i : Nat) (w : List Char), ∃ o, Derives g (.nt i) w o)
     {i : Nat} (hi : i < g.rules.length) (v : List Terminal) :
-    (∃ r, (newGrammar toChar g).Evaluates (tr toChar g g.rules[i]) v r) ∧
+    (∃ r, (newGrammar toChar g).Evaluates (toTotal toChar g g.rules[i]) v r) ∧
     (∃ r, (newGrammar toChar g).Evaluates (trP toChar g g.rules[i]) v r) := by
   obtain ⟨o, D⟩ := htot i (v.map toChar)
   obtain ⟨⟨r, E, -⟩, ⟨p, P, -⟩⟩ := sim hinj D (Or.inr ⟨i, rfl⟩) v rfl
-  simp only [tr, trP, hi, if_true] at E P
+  simp only [toTotal, trP, hi, if_true] at E P
   have E' := ntE_eval_inv toChar g (lt_ntCount_of_lt g hi) E
   have P' := ntE_eval_inv toChar g (add_lt_ntCount_of_lt g hi) P
   rw [newRule_lt toChar g hi] at E'
@@ -76,14 +76,14 @@ theorem star_total {a : PExp} {j : Nat} (hj : j < ntCount g)
 theorem tr_total (hinj : Function.Injective toChar)
     (htot : ∀ (i : Nat) (w : List Char), ∃ o, Derives g (.nt i) w o) (e : PExp) :
     ∀ v : List Terminal,
-      (∃ r, (newGrammar toChar g).Evaluates (tr toChar g e) v r) ∧
+      (∃ r, (newGrammar toChar g).Evaluates (toTotal toChar g e) v r) ∧
       (∃ r, (newGrammar toChar g).Evaluates (trP toChar g e) v r) := by
   induction e with
   | eps => intro v; exact ⟨⟨_, .empty v⟩, ⟨_, .failure v⟩⟩
   | any => intro v; exact ⟨choiceOf_total _ v, choiceOf_total _ v⟩
   | chr c =>
       intro v
-      simp only [tr, trP]
+      simp only [toTotal, trP]
       cases pre toChar c with
       | none => exact ⟨⟨_, .failure v⟩, ⟨_, .failure v⟩⟩
       | some t => exact ⟨⟨_, .terminal t v⟩, ⟨_, .terminal t v⟩⟩
@@ -97,7 +97,7 @@ theorem tr_total (hinj : Function.Injective toChar)
       · exact litE_total s v
   | nt i =>
       intro v
-      simp only [tr, trP]
+      simp only [toTotal, trP]
       split
       · rename_i hi
         obtain ⟨⟨r, E⟩, ⟨p, P⟩⟩ := rule_total hinj htot hi v
@@ -192,8 +192,8 @@ theorem recognizedByTotalPEG_of_partialPEG {Terminal : Type} [Fintype Terminal]
   by_cases hs : g.start < g.rules.length
   · have hstart : (newGrammar toChar g).start = ⟨g.start, lt_ntCount_of_lt g hs⟩ := by
       simp [newGrammar, newStart, hs]
-    have htr : tr toChar g (.nt g.start) = .nonterminal ⟨g.start, lt_ntCount_of_lt g hs⟩ := by
-      simp [tr, ntE, hs, lt_ntCount_of_lt g hs]
+    have htr : toTotal toChar g (.nt g.start) = .nonterminal ⟨g.start, lt_ntCount_of_lt g hs⟩ := by
+      simp [toTotal, ntE, hs, lt_ntCount_of_lt g hs]
     rw [hstart]
     constructor
     · intro hrec

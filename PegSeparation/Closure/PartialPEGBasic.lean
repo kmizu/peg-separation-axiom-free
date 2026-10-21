@@ -34,7 +34,7 @@ theorem stripPrefix?_eq_some {s x rest : List Char} (h : stripPrefix? s x = some
           · simp at h
 
 /-- The rest of a successful derivation is a suffix of the input. -/
-theorem derives_suffix {g : Grammar} {e : PExp} {x : List Char} {o : Outcome}
+theorem derives_rest_suffix {g : Grammar} {e : PExp} {x : List Char} {o : Outcome}
     (D : Derives g e x o) : ∀ {t rest}, o = .ok t rest → rest <:+ x := by
   induction D with
   | eps => intro t rest h; cases h; exact List.suffix_refl _
@@ -228,7 +228,7 @@ theorem add_lt_ntCount_of_lt {i : Nat} (hi : i < g.rules.length) :
   unfold ntCount; omega
 
 theorem newRule_lt {i : Nat} (hi : i < g.rules.length) :
-    newRule toChar g ⟨i, lt_ntCount_of_lt g hi⟩ = tr toChar g g.rules[i] := by
+    newRule toChar g ⟨i, lt_ntCount_of_lt g hi⟩ = toTotal toChar g g.rules[i] := by
   simp [newRule, hi]
 
 theorem newRule_add {i : Nat} (hi : i < g.rules.length) :
